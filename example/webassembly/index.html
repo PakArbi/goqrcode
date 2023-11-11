@@ -3,7 +3,7 @@
         <meta charset="utf-8">
         <script src="wasm_exec.js"></script>
     </head>
-    <body style="align: center">
+    <body style="text-align: center">
         <h3>WebAssembly Demo</h3>
         <textarea style="width: 400px; height: 240px; margin-bottom: 20px" readonly>
 let option = {
@@ -49,7 +49,7 @@ let option = {
                 outputImageEncoder: "png",
                 outputMargin: 20,
             }
-            let rr = generateQRCode("https://github.com/yeqown", option);
+            let rr = generateQRCode("https://github.com/PakArbi/", option);
             console.log(generateQRCode);
             console.log("runFunction called", rr);
             if (rr.success) {

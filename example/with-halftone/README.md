@@ -5,7 +5,7 @@
 
 ```go
 func main() {
-	qrc, err := qrcode.New("https://github.com/yeqown/go-qrcode")
+	qrc, err := qrcode.New("https://github.com/PakArbi/goqrcode")
 	if err != nil {
 		panic(err)
 	}
@@ -22,8 +22,8 @@ func main() {
 
 #### input image
 
-<img src="./test.jpeg">
+<img src="./test.png">
 
 #### output image
 
-<img src="./halftone-qr.jpeg">
+<img src="./">

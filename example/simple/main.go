@@ -20,7 +20,7 @@ func main() {
 	}
 
 	// save into file
-	w, err := standard.New("./simple.png", standard.WithQRWidth(40))
+	w, err := standard.New("../img/logo_ulbi.png", standard.WithQRWidth(40))
 	if err != nil {
 		panic(err)
 	}
