@@ -46,6 +46,7 @@ func TestGenerateQRFromEmail(t *testing.T) {
 		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			generateQRFromEmail(w, r, mockDB)
 		})
+		
 	// Serve the HTTP request and record the response
 	handler.ServeHTTP(rr, req)
 
