@@ -2,10 +2,11 @@ package goqrcode
 
 import (
 	"testing"
-	"bytes"
+	"strings"
+	// "bytes"
 	"net/http"
 	"net/http/httptest"
-	"encoding/json"
+	// "encoding/json"
 	// "strings"
 )
 
@@ -25,27 +26,35 @@ func TestGenerateQRWithLogo(t *testing.T) {
 }
 
 func TestGenerateQRFromEmail(t *testing.T) {
-	Payload := Payload{Email: "test@example.com", Message: "Selamat Datang di PakArbi. Silakan lakukan verifikasi di email ULBI Anda."}
-	reqBody, err := json.Marshal(Payload)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Create a sample payload for testing
+	payload := `{"email": "test@example.com", "message": "Hello, World!"}`
 
-	req, err := http.NewRequest("POST", "/generateQRFromEmail", bytes.NewBuffer(reqBody))
+	// Create a new HTTP request
+	req, err := http.NewRequest("POST", "/generateQRFromEmail", strings.NewReader(payload))
 	if err != nil {
 		t.Fatal(err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
+	// Create a ResponseRecorder to capture the handler response
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(generateQRFromEmail)
 
+		// Mock database instance
+		mockDB := &MockDatabase{} // Use pointer to MockDatabase
+
+		// Call the handler function
+		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			generateQRFromEmail(w, r, mockDB)
+		})
+	// Serve the HTTP request and record the response
 	handler.ServeHTTP(rr, req)
 
+	// Check if the status code is as expected
 	if rr.Code != http.StatusOK {
 		t.Errorf("Expected status OK; got %d", rr.Code)
 	}
 
+	// Check the response body if needed
 	expected := "QR code generated successfully"
 	if rr.Body.String() != expected {
 		t.Errorf("Handler returned unexpected body: got %v, want %v", rr.Body.String(), expected)

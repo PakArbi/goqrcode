@@ -120,7 +120,7 @@ func GenerateQRWithLogo(text, logoPath, outputPath string) error {
 }
 
 
-func generateQRFromEmail(w http.ResponseWriter, r *http.Request, db *YourDatabaseType) {
+func generateQRFromEmail(w http.ResponseWriter, r *http.Request, db Database) {
 	// Baca data dari request body
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -129,7 +129,7 @@ func generateQRFromEmail(w http.ResponseWriter, r *http.Request, db *YourDatabas
 	}
 
 	// Parse JSON dari request body
-	var payload EmailData
+	var payload Payload
 	err = json.Unmarshal(reqBody, &payload)
 	if err != nil {
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
@@ -143,7 +143,7 @@ func generateQRFromEmail(w http.ResponseWriter, r *http.Request, db *YourDatabas
 		return
 	}
 
-	err = db.InsertPayload(payload.Email)
+	err = db.InsertPayload(payload)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to save user: %v", err), http.StatusInternalServerError)
 		return

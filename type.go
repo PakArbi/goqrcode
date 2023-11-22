@@ -20,6 +20,14 @@ type Payload struct {
 	Message string `json:"message"`
 }
 
+type Database interface {
+	InsertPayload(payload Payload) error
+}
+
+type MockDatabase struct {
+	InsertPayloadFunc func(payload Payload) error
+}
+
 var stringnotif = []string{
 	"Selamat Datang di PakArbi.silakan lakukan verifikasi di email ulbi Anda.",
 }

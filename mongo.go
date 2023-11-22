@@ -50,3 +50,10 @@ func insertDataIntoMongo(email string) error {
 	_, err := collection.InsertOne(context.Background(), bson.M{"email": email})
 	return err
 }
+
+func (m *MockDatabase) InsertPayload(payload Payload) error {
+	if m.InsertPayloadFunc != nil {
+		return m.InsertPayloadFunc(payload)
+	}
+	return nil
+}
