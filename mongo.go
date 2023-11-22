@@ -11,6 +11,17 @@ import (
 
 var collection *mongo.Collection
 
+func insertPayload() {
+	// Establish a connection to your MongoDB instance
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
+	if err != nil {
+		panic(err)
+	}
+
+	// Assign the collection to your global variable
+	collection = client.Database("Pakarbi").Collection("codeqr")
+}
+
 func init() {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
 	if err != nil {

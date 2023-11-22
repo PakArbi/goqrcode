@@ -19,35 +19,50 @@ import (
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	// Baca data dari request body
-	reqBody, err := ioutil.ReadAll(r.Body)
-	// Parse JSON dari request body
-	var payload Email
-	err = json.Unmarshal(reqBody, &payload)
-	if err != nil {
-		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
-		return
-	}
-
-	// Generate QR code dari alamat email
-	err = GenerateQRWithLogo(payload.Email, "path_to_logo_ulbi.png", "output_path_qr.png")
+	// Generate QR code
+	qrCode, err := qrcode.Encode("Hallo pak/bu", qrcode.Medium, 256)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to generate QR code: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	// Menyimpan email ke MongoDB
-	err = db.InsertPayload(payload.Email)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to save user: %v", err), http.StatusInternalServerError)
-		return
+	// Create a new image
+	img, _, _ := image.Decode(bytes.NewReader(qrCode))
+	rgba := image.NewRGBA(img.Bounds())
+	draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
+
+	// Resize the image
+	resizedImg := resize.Resize(200, 200, rgba, resize.Lanczos3)
+
+	// Save the image to a file
+	file, _ := os.Create("qrcode.png")
+	defer file.Close()
+	png.Encode(file, resizedImg)
+
+	// Read the saved image file
+	imageData, _ := ioutil.ReadFile("qrcode.png")
+
+	// Convert image data to base64 string
+	base64Str := base64.StdEncoding.EncodeToString(imageData)
+
+	// Create a JSON response
+	response := struct {
+		Image string `json:"image"`
+	}{
+		Image: base64Str,
 	}
 
+	// Convert response to JSON
+	jsonResponse, _ := json.Marshal(response)
+
+	// Set response headers
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("QR code generated successfully"))
+
+	// Send the JSON response
+	w.Write(jsonResponse)
 }
 
-// GenerateQRWithLogo generates a QR code with a logo and saves it to a file
 func GenerateQRWithLogo(text, logoPath, outputPath string) error {
 	// Generate QR code
 	qrCode, err := qrcode.Encode(text, qrcode.Medium, 256)
@@ -104,6 +119,7 @@ func GenerateQRWithLogo(text, logoPath, outputPath string) error {
 	return nil
 }
 
+
 func generateQRFromEmail(w http.ResponseWriter, r *http.Request) {
 	// Baca data dari request body
 	reqBody, err := ioutil.ReadAll(r.Body)
@@ -122,55 +138,19 @@ func generateQRFromEmail(w http.ResponseWriter, r *http.Request) {
 
 	// Generate QR code dari alamat email
 	err = GenerateQRWithLogo(payload.Email, "path_to_logo_ulbi.png", "output_path_qr.png")
-	var err error
-
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to generate QR code: %v", err), http.StatusInternalServerError)
 		return
 	}
-	_, err := db.InsertPayload(payload.Email)
+
+	err = db.InsertPayload(payload.Email)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to save user: %v", err), http.StatusInternalServerError)
+		return
 	}
-	// // Menyimpan email ke MongoDB
-	// err = db.InsertPayload(payload.Email)
-	// if err != nil {
-	// 	http.Error(w, fmt.Sprintf("Failed to save user: %v", err), http.StatusInternalServerError)
-	// 	return
-	// }
 
-	func handler() {
-		// Your code here
-	}
-		// Baca data dari request body
-		reqBody, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "Failed to read request body", http.StatusBadRequest)
-			return
-		}
-
-		// Parse JSON dari request body
-		var payload EmailData
-		err = json.Unmarshal(reqBody, &payload)
-		if err != nil {
-			http.Error(w, "Failed to parse request body", http.StatusBadRequest)
-			return
-		}
-
-		// Generate QR code dari alamat email
-		err = GenerateQRWithLogo(payload.Email, "path_to_logo_ulbi.png", "output_path_qr.png")
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to generate QR code: %v", err), http.StatusInternalServerError)
-			return
-		}
-
-		// Menyimpan email ke MongoDB
-		err = db.InsertPayload(payload.Email)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to save user: %v", err), http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("QR code generated successfully"))
-	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("QR code generated successfully"))
 }
+
 //handler
