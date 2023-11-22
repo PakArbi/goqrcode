@@ -63,14 +63,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 }
 
-// 	}
-
-// 	return qrCode, nil
-// }
-// func Encode(str string, logo image.Image, size int) (*bytes.Buffer, error) {
-// 	return DefaultEncoder.Encode(str, logo, size)
-// }
-
 func GenerateQRWithLogo(text, logoPath, outputPath string) error {
 	// Generate QR code
 	qrCode, err := qrcode.Encode(text, qrcode.Medium, 256)
