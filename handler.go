@@ -120,7 +120,7 @@ func GenerateQRWithLogo(text, logoPath, outputPath string) error {
 }
 
 
-func generateQRFromEmail(w http.ResponseWriter, r *http.Request) {
+func generateQRFromEmail(w http.ResponseWriter, r *http.Request, db *YourDatabaseType) {
 	// Baca data dari request body
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
