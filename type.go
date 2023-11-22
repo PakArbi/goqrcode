@@ -15,6 +15,11 @@ type EmailData struct {
 	Email string `json:"email"`
 }
 
+type Payload struct {
+	Email string `json:"email"`
+	Message string `json:"message"`
+}
+
 var stringnotif = []string{
 	"Selamat Datang di PakArbi.silakan lakukan verifikasi di email ulbi Anda.",
 }

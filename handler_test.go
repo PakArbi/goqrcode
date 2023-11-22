@@ -2,15 +2,17 @@ package goqrcode
 
 import (
 	"testing"
+	"bytes"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	"encoding/json"
+	// "strings"
 )
 
 func TestGenerateQRWithLogo(t *testing.T) {
-	text := "https://ulbi.ac.id"
+	text := "https://pakarbi.github.io"
 	logoPath := "logo_ulbi.png"
-	outputPath := "qrcode_with_logo.png"
+	outputPath := "codeqr.png"
 
 	err := GenerateQRWithLogo(text, logoPath, outputPath)
 	if err != nil {
@@ -23,8 +25,13 @@ func TestGenerateQRWithLogo(t *testing.T) {
 }
 
 func TestGenerateQRFromEmail(t *testing.T) {
-	payload := `{"email": "test@example.com"}`
-	req, err := http.NewRequest("POST", "/generateQRFromEmail", strings.NewReader(payload))
+	Payload := Payload{Email: "test@example.com", Message: "Selamat Datang di PakArbi. Silakan lakukan verifikasi di email ULBI Anda."}
+	reqBody, err := json.Marshal(Payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req, err := http.NewRequest("POST", "/generateQRFromEmail", bytes.NewBuffer(reqBody))
 	if err != nil {
 		t.Fatal(err)
 	}
