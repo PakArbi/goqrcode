@@ -8,6 +8,7 @@ import (
 	"image/png"
 	"os"
 
+	"path/filepath"
 	"net/http"
 	"io/ioutil"
 	"encoding/base64"
@@ -63,21 +64,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 }
 
-func GenerateQRWithLogo(text, logoPath, outputPath string) error {
+func GenerateQRWithLogo(text, logoFilename, outputPath string) error {
 	// Generate QR code
 	qrCode, err := qrcode.Encode(text, qrcode.Medium, 256)
 	if err != nil {
 		return fmt.Errorf("error generating QR code: %v", err)
 	}
 
-	// Open ULBI logo file
+	// Open logo file from 'img' folder
+	imgFolder := "img/logo_ulbi.png"
+	logoPath := filepath.Join(imgFolder, logoFilename)
 	logoFile, err := os.Open(logoPath)
 	if err != nil {
 		return fmt.Errorf("error opening logo file: %v", err)
 	}
 	defer logoFile.Close()
 
-	// Decode ULBI logo
+	// Decode logo image
 	logo, _, err := image.Decode(logoFile)
 	if err != nil {
 		return fmt.Errorf("error decoding logo image: %v", err)
@@ -121,28 +124,34 @@ func GenerateQRWithLogo(text, logoPath, outputPath string) error {
 
 
 func generateQRFromEmail(w http.ResponseWriter, r *http.Request, db Database) {
-	// Baca data dari request body
+	// Read request body data
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Failed to read request body", http.StatusBadRequest)
 		return
 	}
 
-	// Parse JSON dari request body
-	var payload Payload
-	err = json.Unmarshal(reqBody, &payload)
+	// Parse JSON from the request body
+	var emailData EmailData
+	err = json.Unmarshal(reqBody, &emailData)
 	if err != nil {
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
 	}
 
-	// Generate QR code dari alamat email
-	err = GenerateQRWithLogo(payload.Email, "path_to_logo_ulbi.png", "output_path_qr.png")
+	// Generate QR code from the email address
+	err = GenerateQRWithLogo(emailData.Email, "logo_ulbi.png", "codeqr.png")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to generate QR code: %v", err), http.StatusInternalServerError)
 		return
 	}
 
+	payload := Payload{
+		Email:   emailData.Email,
+		Message: "Selamat Anda berhasil verifikasi",
+	}
+
+	// Insert payload data into the database
 	err = db.InsertPayload(payload)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to save user: %v", err), http.StatusInternalServerError)

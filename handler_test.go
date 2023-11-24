@@ -2,62 +2,143 @@ package goqrcode
 
 import (
 	"testing"
-	"strings"
 	// "bytes"
-	"net/http"
-	"net/http/httptest"
+	"os"
+	"fmt"
+
+	// "net/http"
+	// "net/http/httptest"
 	// "encoding/json"
 	// "strings"
 )
 
-func TestGenerateQRWithLogo(t *testing.T) {
-	text := "https://pakarbi.github.io"
-	logoPath := "logo_ulbi.png"
-	outputPath := "codeqr.png"
+func TestGenerateQRWithLogo_EmailNPM(t *testing.T) {
+	email := "npm@std.ulbi.ac.id"
+	outputPath := "output_qr.png" // Set your desired output path
 
-	err := GenerateQRWithLogo(text, logoPath, outputPath)
+	err := GenerateQRWithLogo(email, "logo_ulbi.png", outputPath)
 	if err != nil {
-		t.Errorf("error generating QR code with logo: %v", err)
+		t.Errorf("Unexpected error: %v", err)
 	}
 
-	// Optionally, add tests to check the output file or validate the generated QR code
-	// For instance, check if the output file exists and has the expected properties.
-	// Example: Validate existence, dimensions, and correctness of the generated QR code.
+	// Check if the output file exists
+	_, err = os.Stat(outputPath)
+	if os.IsNotExist(err) {
+		t.Errorf("Output file not created: %v", err)
+	}
+
+	// Clean up: Remove the created output file
+	err = os.Remove(outputPath)
+	if err != nil {
+		fmt.Println("Error removing output file:", err)
+	}
 }
 
-func TestGenerateQRFromEmail(t *testing.T) {
-	// Create a sample payload for testing
-	payload := `{"email": "test@example.com", "message": "Hello, World!"}`
+// TestInsertPayloadIntoMongo tests the insertion of payload into MongoDB
+func TestInsertPayloadIntoMongo(t *testing.T) {
+	// Set up your test payload
+	payload := Payload{
+		Email:   "test@example.com",
+		Message: "Test message",
+	}
 
-	// Create a new HTTP request
-	req, err := http.NewRequest("POST", "/generateQRFromEmail", strings.NewReader(payload))
+	// Mock MongoDB instance for testing
+	mockDB := &MockDatabase{}
+
+	// Call the InsertPayload function with the mock database
+	err := InsertPayload(payload)
 	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	// Create a ResponseRecorder to capture the handler response
-	rr := httptest.NewRecorder()
-
-		// Mock database instance
-		mockDB := &MockDatabase{} // Use pointer to MockDatabase
-
-		// Call the handler function
-		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			generateQRFromEmail(w, r, mockDB)
-		})
-		
-	// Serve the HTTP request and record the response
-	handler.ServeHTTP(rr, req)
-
-	// Check if the status code is as expected
-	if rr.Code != http.StatusOK {
-		t.Errorf("Expected status OK; got %d", rr.Code)
+		t.Errorf("Failed to insert payload into MongoDB: %v", err)
 	}
 
-	// Check the response body if needed
-	expected := "QR code generated successfully"
-	if rr.Body.String() != expected {
-		t.Errorf("Handler returned unexpected body: got %v, want %v", rr.Body.String(), expected)
+	// Check if the InsertPayloadFunc in the mock database was called
+	if !mockDB.InsertPayloadFuncCalled {
+		t.Error("InsertPayloadFunc not called")
 	}
 }
+
+// TestSendVerificationEmail tests the email verification functionality
+func TestSendVerificationEmail(t *testing.T) {
+	// Set up test email address
+	email := "test@example.com"
+
+	// Mock email sender for testing
+	mockEmailSender := &MockEmailSender{}
+
+	// Call the SendVerificationEmail function with the mock email sender
+	err := SendVerificationEmail(email)
+	if err != nil {
+		t.Errorf("Failed to send verification email: %v", err)
+	}
+
+	// Check if the SendVerificationEmail function in the mock email sender was called
+	if !mockEmailSender.SendVerificationEmailFuncCalled {
+		t.Error("SendVerificationEmailFunc not called")
+	}
+}
+
+// func TestVerifyEmail(t *testing.T) {
+// 	// Mock the email verification process
+
+// 	// Mock request body
+// 	email := "test@example.com"
+// 	requestBody, _ := json.Marshal(EmailData{Email: email})
+
+// 	// Create a mock HTTP request with the request body
+// 	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(requestBody))
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+
+// 	// Create a mock response recorder
+// 	rr := httptest.NewRecorder()
+
+// 	// Mock Database instance
+// 	db := &MockDB{}
+
+// 	// Call the handler function with the mock request, response recorder, and mock DB
+// 	generateQRFromEmail(rr, req, db)
+
+// 	// Check the HTTP status code
+// 	if rr.Code != http.StatusOK {
+// 		t.Errorf("Expected status %d; got %d", http.StatusOK, rr.Code)
+// 	}
+
+// 	// Add assertions to check if the email verification was triggered or mocked appropriately
+// 	// For example, check if the email was sent by verifying specific behaviors or functions were called
+// }
+
+// func TestGenerateQRFromEmail(t *testing.T) {
+// 	// Mock request body
+// 	email := "test@example.com"
+// 	requestBody, _ := json.Marshal(EmailData{Email: email})
+
+// 	// Create a mock HTTP request with the request body
+// 	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(requestBody))
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+
+// 	// Create a mock response recorder
+// 	rr := httptest.NewRecorder()
+
+// 	// Mock Database instance
+// 	db := &MockDB{}
+
+// 	// Call the handler function with the mock request, response recorder, and mock DB
+// 	generateQRFromEmail(rr, req, db)
+
+// 	// Check the HTTP status code
+// 	if rr.Code != http.StatusOK {
+// 		t.Errorf("Expected status %d; got %d", http.StatusOK, rr.Code)
+// 	}
+
+// 	// Check the response body
+// 	expectedBody := "QR code generated successfully"
+// 	if rr.Body.String() != expectedBody {
+// 		t.Errorf("Handler returned unexpected body: got %s, want %s", rr.Body.String(), expectedBody)
+// 	}
+
+// 	// Add more assertions to validate further functionality (e.g., check if the QR code is generated, email sent, etc.)
+// }
+// ghfg

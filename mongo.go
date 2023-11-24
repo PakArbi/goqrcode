@@ -51,9 +51,48 @@ func insertDataIntoMongo(email string) error {
 	return err
 }
 
+// func (m *MockDatabase) InsertPayload(payload Payload) error {
+// 	if m.InsertPayloadFunc != nil {
+// 		return m.InsertPayloadFunc(payload)
+// 	}
+// 	return nil
+// }
+
+// MockDatabase is a mock for the Database interface
+type MockDatabase struct {
+	InsertPayloadFuncCalled bool
+}
+
+// InsertPayload simulates inserting a payload into the database
 func (m *MockDatabase) InsertPayload(payload Payload) error {
-	if m.InsertPayloadFunc != nil {
-		return m.InsertPayloadFunc(payload)
-	}
+	m.InsertPayloadFuncCalled = true
+	// Implement logic to simulate payload insertion
 	return nil
 }
+
+// MockEmailSender is a mock for the EmailSender interface
+type MockEmailSender struct {
+	SendVerificationEmailFuncCalled bool
+}
+
+// SendVerificationEmail mocks sending a verification email
+func (m *MockEmailSender) SendVerificationEmail(email string) error {
+	m.SendVerificationEmailFuncCalled = true
+	// Implement logic to simulate email sending
+	return nil
+}
+
+
+// InsertPayload simulates inserting a payload into the database
+func (m *MockDB) InsertPayload(payload Payload) error {
+	// Implement the logic to simulate the payload insertion
+	m.EmailSent = true // Simulate successful payload insertion
+	return nil
+}
+
+// // SendVerificationEmail mocks sending a verification email
+// func (m *MockEmailSender) SendVerificationEmail(email string) error {
+// 	// Here you can check if the email sending is triggered correctly
+// 	m.VerificationEmailSent = true
+// 	return nil
+// }

@@ -1,7 +1,7 @@
 package goqrcode 
 
 type Notif struct {
-	Message string `bson:"message"`
+	Message string `bson:"message,omitempty" json:"message,omitempty"`
 }
 
 // QRCodeVerification adalah tipe data untuk verifikasi kode QR
@@ -12,21 +12,30 @@ type QRCodeVerification struct {
 }
 
 type EmailData struct {
-	Email string `json:"email"`
+	Email string `bson:"email,omitempty" json:"email,omitempty"`
 }
 
 type Payload struct {
-	Email string `json:"email"`
-	Message string `json:"message"`
+	Email string `bson:"email,omitempty" json:"email,omitempty"`
+	Message string `bson:"message,omitempty" json:"message,omitempty"`
 }
 
 type Database interface {
 	InsertPayload(payload Payload) error
 }
 
-type MockDatabase struct {
-	InsertPayloadFunc func(payload Payload) error
+// type MockDatabase struct {
+// 	InsertPayloadFunc func(payload Payload) error
+// }
+
+type MockDB struct {
+	EmailSent bool
 }
+
+// // MockEmailSender struct to mock email sending functionality
+// type MockEmailSender struct {
+// 	VerificationEmailSent bool
+// }
 
 var stringnotif = []string{
 	"Selamat Datang di PakArbi.silakan lakukan verifikasi di email ulbi Anda.",
