@@ -2,7 +2,8 @@ package goqrcode
 
 import (
 	"context"
-	
+	// "encoding/json"
+	"log"
 	"time"
 	"fmt"
 
@@ -48,3 +49,58 @@ func saveToMongo(formData FormData) error {
 
 	return nil
 }
+
+func InsertDataToMongoDB(formData FormData) error {
+    // Establish a connection to MongoDB
+    client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
+    if err != nil {
+        return fmt.Errorf("failed to connect to MongoDB: %v", err)
+    }
+    defer func() {
+        if err = client.Disconnect(context.Background()); err != nil {
+            log.Fatal(err)
+        }
+    }()
+
+    // Access your database and collection
+    collection := client.Database("PakArbi").Collection("codeqr")
+
+    // Insert data into MongoDB
+    _, err = collection.InsertOne(context.Background(), formData)
+    if err != nil {
+        return fmt.Errorf("failed to insert data to MongoDB: %v", err)
+    }
+
+    return nil
+}
+
+//insert
+// func InsertDataToMongoDB(formData FormData) error {
+// 	// Convert struct to JSON
+// 	dataJSON, err := json.Marshal(formData)
+//     if err != nil {
+//         return fmt.Errorf("failed to marshal JSON: %v", err)
+//     }
+
+// 	// Establish a connection to MongoDB
+// 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
+// 	if err != nil {
+// 		return fmt.Errorf("failed to connect to MongoDB: %v", err)
+// 	}
+// 	defer func() {
+// 		if err = client.Disconnect(context.Background()); err != nil {
+// 			log.Fatal(err)
+// 		}
+// 	}()
+
+// 	// Access your database and collection
+// 	collection := client.Database("PakArbi").Collection("codeqr")
+
+// 	// Insert data into MongoDB
+// 	_, err = collection.InsertOne(context.Background(), formData)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to insert data to MongoDB: %v", err)
+// 	}
+
+// 	return nil
+// }

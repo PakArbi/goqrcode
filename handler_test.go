@@ -2,12 +2,8 @@ package goqrcode
 
 import (
 	"testing"
-	// "bytes"
 	"os"
-	// "fmt"
-
-	// "net/http"
-	// "net/http/httptest"
+	
 	"encoding/json"
 	// "strings"
 )
