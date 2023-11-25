@@ -8,10 +8,9 @@ import (
 	"image/png"
 	"os"
 
-	"path/filepath"
-	"net/http"
-	"io/ioutil"
-	"encoding/base64"
+	// "net/http"
+	// "io/ioutil"
+	// "encoding/base64"
 	"encoding/json"
 
 	qrcode "github.com/skip2/go-qrcode"
@@ -19,171 +18,125 @@ import (
 	"github.com/nfnt/resize"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	// Generate QR code
-	qrCode, err := qrcode.Encode("Hallo pak/bu", qrcode.Medium, 256)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to generate QR code: %v", err), http.StatusInternalServerError)
-		return
-	}
+// func GenerateQRWithLogo(text, logoFilename, outputPath string) error {
+// 	// Generate QR code
+// 	qrCode, err := qrcode.Encode(text, qrcode.Medium, 256)
+// 	if err != nil {
+// 		return fmt.Errorf("error generating QR code: %v", err)
+// 	}
 
-	// Create a new image
-	img, _, _ := image.Decode(bytes.NewReader(qrCode))
-	rgba := image.NewRGBA(img.Bounds())
-	draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
+// 	// Open logo file from 'img' folder
+// 	imgFolder := "img/logo_ulbi.png"
+// 	logoPath := filepath.Join(imgFolder, logoFilename)
+// 	logoFile, err := os.Open(logoPath)
+// 	if err != nil {
+// 		return fmt.Errorf("error opening logo file: %v", err)
+// 	}
+// 	defer logoFile.Close()
 
-	// Resize the image
-	resizedImg := resize.Resize(200, 200, rgba, resize.Lanczos3)
+// 	// Decode logo image
+// 	logo, _, err := image.Decode(logoFile)
+// 	if err != nil {
+// 		return fmt.Errorf("error decoding logo image: %v", err)
+// 	}
 
-	// Save the image to a file
-	file, _ := os.Create("qrcode.png")
-	defer file.Close()
-	png.Encode(file, resizedImg)
+// 	// Decode QR code image
+// 	qrImage, _, err := image.Decode(bytes.NewReader(qrCode))
+// 	if err != nil {
+// 		return fmt.Errorf("error decoding QR code image: %v", err)
+// 	}
 
-	// Read the saved image file
-	imageData, _ := ioutil.ReadFile("qrcode.png")
+// 	// Create an RGBA image to draw QR code and logo
+// 	rgba := image.NewRGBA(qrImage.Bounds())
+// 	draw.Draw(rgba, qrImage.Bounds(), qrImage, image.Point{}, draw.Over)
 
-	// Convert image data to base64 string
-	base64Str := base64.StdEncoding.EncodeToString(imageData)
+// 	// Resize the logo to fit within the QR code
+// 	resizedLogo := resize.Resize(80, 0, logo, resize.Lanczos3)
 
-	// Create a JSON response
-	response := struct {
-		Image string `json:"image"`
-	}{
-		Image: base64Str,
-	}
+// 	// Calculate position to overlay the logo on the QR code
+// 	x := (qrImage.Bounds().Dx() - resizedLogo.Bounds().Dx()) / 2
+// 	y := (qrImage.Bounds().Dy() - resizedLogo.Bounds().Dy()) / 2
 
-	// Convert response to JSON
-	jsonResponse, _ := json.Marshal(response)
+// 	// Draw the logo onto the QR code
+// 	draw.Draw(rgba, resizedLogo.Bounds().Add(image.Point{x, y}), resizedLogo, image.Point{}, draw.Over)
 
-	// Set response headers
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+// 	// Save the final QR code with logo
+// 	outFile, err := os.Create(outputPath)
+// 	if err != nil {
+// 		return fmt.Errorf("error creating output file: %v", err)
+// 	}
+// 	defer outFile.Close()
 
-	// Send the JSON response
-	w.Write(jsonResponse)
-}
+// 	// Encode the final image into the output file
+// 	err = png.Encode(outFile, rgba)
+// 	if err != nil {
+// 		return fmt.Errorf("error encoding image: %v", err)
+// 	}
 
-func GenerateQRWithLogo(text, logoFilename, outputPath string) error {
-	// Generate QR code
-	qrCode, err := qrcode.Encode(text, qrcode.Medium, 256)
-	if err != nil {
-		return fmt.Errorf("error generating QR code: %v", err)
-	}
-
-	// Open logo file from 'img' folder
-	imgFolder := "img/logo_ulbi.png"
-	logoPath := filepath.Join(imgFolder, logoFilename)
-	logoFile, err := os.Open(logoPath)
-	if err != nil {
-		return fmt.Errorf("error opening logo file: %v", err)
-	}
-	defer logoFile.Close()
-
-	// Decode logo image
-	logo, _, err := image.Decode(logoFile)
-	if err != nil {
-		return fmt.Errorf("error decoding logo image: %v", err)
-	}
-
-	// Decode QR code image
-	qrImage, _, err := image.Decode(bytes.NewReader(qrCode))
-	if err != nil {
-		return fmt.Errorf("error decoding QR code image: %v", err)
-	}
-
-	// Create an RGBA image to draw QR code and logo
-	rgba := image.NewRGBA(qrImage.Bounds())
-	draw.Draw(rgba, qrImage.Bounds(), qrImage, image.Point{}, draw.Over)
-
-	// Resize the logo to fit within the QR code
-	resizedLogo := resize.Resize(80, 0, logo, resize.Lanczos3)
-
-	// Calculate position to overlay the logo on the QR code
-	x := (qrImage.Bounds().Dx() - resizedLogo.Bounds().Dx()) / 2
-	y := (qrImage.Bounds().Dy() - resizedLogo.Bounds().Dy()) / 2
-
-	// Draw the logo onto the QR code
-	draw.Draw(rgba, resizedLogo.Bounds().Add(image.Point{x, y}), resizedLogo, image.Point{}, draw.Over)
-
-	// Save the final QR code with logo
-	outFile, err := os.Create(outputPath)
-	if err != nil {
-		return fmt.Errorf("error creating output file: %v", err)
-	}
-	defer outFile.Close()
-
-	// Encode the final image into the output file
-	err = png.Encode(outFile, rgba)
-	if err != nil {
-		return fmt.Errorf("error encoding image: %v", err)
-	}
-
-	return nil
-}
+// 	return nil
+// }
 
 func GenerateQRCode(formData FormData) error {
-	// Convert struct to JSON
-	dataJSON, err := json.Marshal(formData)
-	if err != nil {
-		return fmt.Errorf("failed to marshal JSON: %v", err)
-	}
+    // Convert struct to JSON
+    dataJSON, err := json.Marshal(formData)
+    if err != nil {
+        return fmt.Errorf("failed to marshal JSON: %v", err)
+    }
 
-	// Generate QR code
-	qrCode, err := qrcode.Encode(string(dataJSON), qrcode.Medium, 256)
-	if err != nil {
-		return fmt.Errorf("failed to generate QR code: %v", err)
-	}
+    // Generate QR code
+    qrCode, err := qrcode.Encode(string(dataJSON), qrcode.Medium, 256)
+    if err != nil {
+        return fmt.Errorf("failed to generate QR code: %v", err)
+    }
 
-	// Open ULBI logo file
-	logoFile, err := os.Open("./img/logo_ulbi.png") // Replace with your ULBI logo file path
-	if err != nil {
-		return fmt.Errorf("failed to open logo file: %v", err)
-	}
-	defer logoFile.Close()
+    // Open ULBI logo file
+    logoFile, err := os.Open("./img/logo_ulbi.png") // Replace with your ULBI logo file path
+    if err != nil {
+        return fmt.Errorf("failed to open logo file: %v", err)
+    }
+    defer logoFile.Close()
 
-	// Decode ULBI logo
-	logo, _, err := image.Decode(logoFile)
-	if err != nil {
-		return fmt.Errorf("failed to decode logo image: %v", err)
-	}
+    // Decode ULBI logo
+    logo, _, err := image.Decode(logoFile)
+    if err != nil {
+        return fmt.Errorf("failed to decode logo image: %v", err)
+    }
 
-	// Decode QR code image
-	qrImage, _, err := image.Decode(bytes.NewReader(qrCode))
-	if err != nil {
-		return fmt.Errorf("failed to decode QR code image: %v", err)
-	}
+    // Decode QR code image
+    qrImage, _, err := image.Decode(bytes.NewReader(qrCode))
+    if err != nil {
+        return fmt.Errorf("failed to decode QR code image: %v", err)
+    }
 
-	// Create an RGBA image to draw QR code and logo
-	rgba := image.NewRGBA(qrImage.Bounds())
-	draw.Draw(rgba, qrImage.Bounds(), qrImage, image.Point{}, draw.Over)
+    // Create an RGBA image to draw QR code and logo
+    rgba := image.NewRGBA(qrImage.Bounds())
+    draw.Draw(rgba, qrImage.Bounds(), qrImage, image.Point{}, draw.Over)
 
-	// Resize the logo to fit within the QR code
-	resizedLogo := resize.Resize(80, 0, logo, resize.Lanczos3)
+    // Resize the logo to fit within the QR code
+    resizedLogo := resize.Resize(80, 0, logo, resize.Lanczos3)
 
-	// Calculate position to overlay the logo on the QR code
-	x := (qrImage.Bounds().Dx() - resizedLogo.Bounds().Dx()) / 2
-	y := (qrImage.Bounds().Dy() - resizedLogo.Bounds().Dy()) / 2
+    // Calculate position to overlay the logo on the QR code
+    x := (qrImage.Bounds().Dx() - resizedLogo.Bounds().Dx()) / 2
+    y := (qrImage.Bounds().Dy() - resizedLogo.Bounds().Dy()) / 2
 
-	// Draw the logo onto the QR code
-	draw.Draw(rgba, resizedLogo.Bounds().Add(image.Point{x, y}), resizedLogo, image.Point{}, draw.Over)
+    // Draw the logo onto the QR code
+    draw.Draw(rgba, resizedLogo.Bounds().Add(image.Point{x, y}), resizedLogo, image.Point{}, draw.Over)
 
-	// Save the final QR code with logo
-	outFile, err := os.Create("./img/qrcode.png") // Replace with desired output file name
-	if err != nil {
-		return fmt.Errorf("failed to create output file: %v", err)
-	}
-	defer outFile.Close()
+    // Save the final QR code with logo
+    outFile, err := os.Create("./img/qrcode.png") // Replace with desired output file name
+    if err != nil {
+        return fmt.Errorf("failed to create output file: %v", err)
+    }
+    defer outFile.Close()
 
-	// Encode the final image into the output file
-	err = png.Encode(outFile, rgba)
-	if err != nil {
-		return fmt.Errorf("failed to encode image: %v", err)
-	}
+    // Encode the final image into the output file
+    err = png.Encode(outFile, rgba)
+    if err != nil {
+        return fmt.Errorf("failed to encode image: %v", err)
+    }
 
-	return nil
+    return nil
 }
-
 
 // func generateQRFromEmail(w http.ResponseWriter, r *http.Request, db Database) {
 // 	// Read request body data
