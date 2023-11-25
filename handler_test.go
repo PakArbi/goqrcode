@@ -9,7 +9,7 @@ import (
 	// "net/http"
 	// "net/http/httptest"
 	"encoding/json"
-	"strings"
+	// "strings"
 )
 
 // func TestGenerateQRWithLogo_EmailNPM(t *testing.T) {
@@ -55,27 +55,13 @@ func TestGenerateQRCode(t *testing.T) {
 	}
 
 	// Check if JSON data is generated correctly
-	expectedJSON := `{"namalengkap":"Farhan Rizki Maulana",
-	"npm":"1214020","jurusan":"D4 Teknik Informatika",
-	"namakendaraan":"Supra X 125",
-	"nomorkendaraan":"F 1234 NR",
-	"jeniskendaraan":"Motor"}`
-	
-	// Convert struct to JSON string
-	dataJSON, err := json.Marshal(formData)
-	if err != nil {
-		t.Errorf("Failed to marshal JSON: %v", err)
-	}
+	dataJSON, _ := json.Marshal(formData)
 
-	generatedJSON := string(dataJSON)
+	expectedJSON := `{"namalengkap":"Farhan Rizki Maulana","npm":"1214020","jurusan":"D4 Teknik Informatika","namakendaraan":"Supra X 125","nomorkendaraan":"F 1234 NR","jeniskendaraan":"Motor"}`
 
-	// Remove extra spaces and new lines from both JSON strings
-	expectedJSON = strings.ReplaceAll(expectedJSON, " ", "")
-	expectedJSON = strings.ReplaceAll(expectedJSON, "\n", "")
-	generatedJSON = strings.ReplaceAll(generatedJSON, " ", "")
-	generatedJSON = strings.ReplaceAll(generatedJSON, "\n", "")
-
-	if expectedJSON != generatedJSON {
+	// Validate JSON data
+	if string(dataJSON) != expectedJSON {
 		t.Errorf("Incorrect JSON data generated")
 	}
 }
+
