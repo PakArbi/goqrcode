@@ -74,6 +74,29 @@ func InsertDataToMongoDB(formData FormData) error {
     return nil
 }
 
+func establishMongoDBConnection() (*mongo.Client, error) {
+    // Establish a connection to MongoDB
+    client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
+    if err != nil {
+        return nil, fmt.Errorf("failed to connect to MongoDB: %v", err)
+    }
+
+    return client, nil
+}
+
+func insertDataToMongoDB(client *mongo.Client, formData FormData) error {
+    // Access your database and collection
+    collection := client.Database("PakArbi").Collection("codeqr")
+
+    // Insert data into MongoDB
+    _, err := collection.InsertOne(context.Background(), formData)
+    if err != nil {
+        return fmt.Errorf("failed to insert data to MongoDB: %v", err)
+    }
+
+    return nil
+}
+
 //insert
 // func InsertDataToMongoDB(formData FormData) error {
 // 	// Convert struct to JSON
