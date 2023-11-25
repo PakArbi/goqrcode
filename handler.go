@@ -90,7 +90,7 @@ func GenerateQRCode(formData FormData) error {
     }
 
     // Open ULBI logo file
-    logoFile, err := os.Open("./img/logo_ulbi.png") // Replace with your ULBI logo file path
+    logoFile, err := os.Open("logo_ulbi.png") // Replace with your ULBI logo file path
     if err != nil {
         return fmt.Errorf("failed to open logo file: %v", err)
     }
@@ -123,7 +123,7 @@ func GenerateQRCode(formData FormData) error {
     draw.Draw(rgba, resizedLogo.Bounds().Add(image.Point{x, y}), resizedLogo, image.Point{}, draw.Over)
 
     // Save the final QR code with logo
-    outFile, err := os.Create("./img/qrcode.png") // Replace with desired output file name
+    outFile, err := os.Create("qrcode.png") // Replace with desired output file name
     if err != nil {
         return fmt.Errorf("failed to create output file: %v", err)
     }

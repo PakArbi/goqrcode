@@ -13,6 +13,11 @@ type FormData struct {
 	JenisKendaraan string `bson:"jeniskendaraan,omitempty" json:"jeniskendaraan,omitempty"`
 }
 
+type simpleQRCode struct {
+    Content 	string	`bson:"content,omitempty" json:"content,omitempty"`
+    Size        int		`bson:"size,omitempty" json:"size,omitempty"`
+}
+
 // QRCodeVerification adalah tipe data untuk verifikasi kode QR
 type QRCodeVerification struct {
 	OriginalData string // Data asli yang akan divalidasi dengan kode QR
