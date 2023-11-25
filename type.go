@@ -4,6 +4,15 @@ type Notif struct {
 	Message string `bson:"message,omitempty" json:"message,omitempty"`
 }
 
+type FormData struct {
+	NamaLengkap    string `bson:"namalengkap,omitempty" json:"namalengkap,omitempty"`
+	NPM            string `bson:"npm,omitempty" json:"npm,omitempty"`
+	Jurusan        string `bson:"jurusan,omitempty" json:"jurusan,omitempty"`
+	NamaKendaraan  string `bson:"namakendaraan,omitempty" json:"namakendaraan,omitempty"`
+	NomorKendaraan string `bson:"nomorkendaraan,omitempty" json:"nomorkendaraan,omitempty"`
+	JenisKendaraan string `bson:"jeniskendaraan,omitempty" json:"jeniskendaraan,omitempty"`
+}
+
 // QRCodeVerification adalah tipe data untuk verifikasi kode QR
 type QRCodeVerification struct {
 	OriginalData string // Data asli yang akan divalidasi dengan kode QR
