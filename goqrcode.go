@@ -7,14 +7,9 @@ import (
 	"image/draw"
 	"image/png"
 	"os"
-
-	// "net/http"
-	// "io/ioutil"
-	// "encoding/base64"
 	"encoding/json"
 
 	qrcode "github.com/skip2/go-qrcode"
-	// qrpa "github.com/PakArbi/model/goqrcode"
 	"github.com/nfnt/resize"
 )
 
@@ -137,44 +132,3 @@ func GenerateQRCode(formData FormData) error {
 
     return nil
 }
-
-// func generateQRFromEmail(w http.ResponseWriter, r *http.Request, db Database) {
-// 	// Read request body data
-// 	reqBody, err := ioutil.ReadAll(r.Body)
-// 	if err != nil {
-// 		http.Error(w, "Failed to read request body", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	// Parse JSON from the request body
-// 	var emailData EmailData
-// 	err = json.Unmarshal(reqBody, &emailData)
-// 	if err != nil {
-// 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	// Generate QR code from the email address
-// 	err = GenerateQRWithLogo(emailData.Email, "logo_ulbi.png", "codeqr.png")
-// 	if err != nil {
-// 		http.Error(w, fmt.Sprintf("Failed to generate QR code: %v", err), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	payload := Payload{
-// 		Email:   emailData.Email,
-// 		Message: "Selamat Anda berhasil verifikasi",
-// 	}
-
-// 	// Insert payload data into the database
-// 	err = db.InsertPayload(payload)
-// 	if err != nil {
-// 		http.Error(w, fmt.Sprintf("Failed to save user: %v", err), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	w.WriteHeader(http.StatusOK)
-// 	w.Write([]byte("QR code generated successfully"))
-// }
-
-//handler
