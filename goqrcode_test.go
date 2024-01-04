@@ -2,14 +2,15 @@ package goqrcode
 
 import (
 	"bytes"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"os"
 
-	"github.com/stretchr/testify/assert"
+	"encoding/json"
+
 	"github.com/PakArbi/backparkir"
+	// "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // func TestGenerateQRWithLogo_EmailNPM(t *testing.T) {
@@ -35,8 +36,8 @@ import (
 // }
 
 func TestGenerateQRCode(t *testing.T) {
-	formData := backparkir.Parkiran{
-		ParkiranId:      1,
+	dataParkir := backparkir.Parkiran{
+		ParkiranId:      3,
 		Nama:            "M Faisal A",
 		NPM:             "1214000",
 		Prodi:           "Teknik Informatika",
@@ -45,7 +46,7 @@ func TestGenerateQRCode(t *testing.T) {
 		JenisKendaraan:  "Motor",
 	}
 
-	err := GenerateQRCode(formData)
+	err := GenerateQRCode(dataParkir)
 	if err != nil {
 		t.Errorf("Failed to generate QR code: %v", err)
 	}
@@ -56,9 +57,9 @@ func TestGenerateQRCode(t *testing.T) {
 	}
 
 	// Check if JSON data is generated correctly
-	dataJSON, _ := json.Marshal(formData)
+	dataJSON, _ := json.Marshal(dataParkir)
 
-	expectedJSON := `{"ParkiranId":1,"Nama":"M Faisal A","NPM":"1214000","Prodi":"Teknik Informatika","NamaKendaraan":"Honda","NomorKendaraan":"D 1234 CD","JenisKendaraan":"Motor"}`
+	expectedJSON := `{"ID":null,"parkiranid":3,"nama":"M Faisal A","npm":"1214000","prodi":"Teknik Informatika","namakendaraan":"Honda","nomorkendaraan":"D 1234 CD","jeniskendaraan":"Motor"}`
 
 	// Validate JSON data
 	if string(dataJSON) != expectedJSON {
@@ -66,10 +67,14 @@ func TestGenerateQRCode(t *testing.T) {
 	}
 }
 
+
+
+//test GCF
+
 func TestGCFGenerateQRCode(t *testing.T) {
 	// Buat data dummy untuk dijadikan input
-	formData := backparkir.Parkiran{
-		ParkiranId:      1,
+	DataParkir := backparkir.Parkiran{
+		ParkiranId:      3,
 		Nama:            "M Faisal A",
 		NPM:             "1214000",
 		Prodi:           "Teknik Informatika",
@@ -79,7 +84,7 @@ func TestGCFGenerateQRCode(t *testing.T) {
 	}
 
 	// Marshal data dummy ke JSON
-	dataJSON, err := json.Marshal(formData)
+	dataJSON, err := json.Marshal(DataParkir)
 	if err != nil {
 		t.Fatalf("Failed to marshal JSON: %v", err)
 	}

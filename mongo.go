@@ -6,11 +6,40 @@ import (
 	"log"
 	"time"
 	"fmt"
+	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	// "go.mongodb.org/mongo-driver/bson"
 )
+
+// mongodb
+
+func GetConnectionMongo(MONGOSTRING, dbname string) (*mongo.Database, error) {
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv(MONGOSTRING)))
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to MongoDB: %v", err)
+	}
+	return client.Database(dbname), nil
+}
+
+func SetConnection(MONGOSTRINGENV, dbname string) (*mongo.Database, error) {
+    client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv(MONGOSTRINGENV)))
+    if err != nil {
+        return nil, fmt.Errorf("failed to connect to MongoDB: %v", err)
+    }
+    return client.Database(dbname), nil
+}
+
+
+func MongoConnect(MONGOSTRINGENV, dbname string) *mongo.Database {
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv(MONGOSTRINGENV)))
+	if err != nil {
+		fmt.Printf("MongoConnect: %v\n", err)
+		return nil
+	}
+	return client.Database(dbname)
+}
 
 var collection *mongo.Collection
 
@@ -45,6 +74,26 @@ func saveToMongo(formData FormData) error {
 	_, err = collection.InsertOne(ctx, formData)
 	if err != nil {
 		return fmt.Errorf("failed to insert data into MongoDB: %v", err)
+	}
+
+	return nil
+}
+
+func saveToMongoDB(data FormData) error {
+	// Inisialisasi koneksi ke MongoDB
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		return err
+	}
+	defer client.Disconnect(context.Background())
+
+	// Pilih database dan koleksi MongoDB
+	collection := client.Database("nama_database").Collection("nama_koleksi")
+
+	// Simpan data ke dalam MongoDB
+	_, err = collection.InsertOne(context.Background(), data)
+	if err != nil {
+		return err
 	}
 
 	return nil

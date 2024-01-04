@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
-	"image/draw"
+	// "image/draw"
 	"net/http"
 	"os"
 
@@ -14,7 +14,7 @@ import (
 	qrcode "github.com/skip2/go-qrcode"
 )
 
-func GenerateQRCode(DataParkir FormData) error {
+func GenerateQRCode(DataParkir backparkir.Parkiran) error {
 	// Convert struct to JSON
 	dataJSON, err := json.Marshal(DataParkir)
 	if err != nil {
@@ -93,3 +93,8 @@ func GCFGenerateQRCode(w http.ResponseWriter, r *http.Request) {
 	// Open and serve the QR code image with logo
 	http.ServeFile(w, r, "qrcode.png")
 }
+
+
+
+
+
