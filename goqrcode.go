@@ -1,3 +1,5 @@
+package goqrcode
+
 import (
 	"bytes"
 	"encoding/json"
