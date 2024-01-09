@@ -51,7 +51,7 @@ func SaveQRScanResult(qrData QRScan) error {
 }
 
 
-func saveToMongo(formData FormData) error {
+func saveToMongo(formData Parkkiran) error {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
 	if err != nil {
 		return fmt.Errorf("failed to create MongoDB client: %v", err)
@@ -76,7 +76,7 @@ func saveToMongo(formData FormData) error {
 	return nil
 }
 
-func InsertDataToMongoDB(formData FormData) error {
+func InsertDataToMongoDB(formData Parkkiran) error {
     // Establish a connection to MongoDB
     client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
     if err != nil {
@@ -110,7 +110,7 @@ func establishMongoDBConnection() (*mongo.Client, error) {
     return client, nil
 }
 
-func insertDataToMongoDB(client *mongo.Client, formData FormData) error {
+func insertDataToMongoDB(client *mongo.Client, formData Parkkiran) error {
     // Access your database and collection
     collection := client.Database("PakArbi").Collection("codeqr")
 
@@ -124,7 +124,7 @@ func insertDataToMongoDB(client *mongo.Client, formData FormData) error {
 }
 
 //insert
-// func InsertDataToMongoDB(formData FormData) error {
+// func InsertDataToMongoDB(formData Parkkiran) error {
 // 	// Convert struct to JSON
 // 	dataJSON, err := json.Marshal(formData)
 //     if err != nil {
