@@ -9,7 +9,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	// "go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 var collection *mongo.Collection
@@ -51,7 +51,7 @@ func SaveQRScanResult(qrData QRScan) error {
 }
 
 
-func saveToMongo(formData Parkkiran) error {
+func saveToMongo(dataParkir Parkiran) error {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
 	if err != nil {
 		return fmt.Errorf("failed to create MongoDB client: %v", err)
@@ -68,7 +68,7 @@ func saveToMongo(formData Parkkiran) error {
 
 	collection := client.Database("PakArbi").Collection("codeqr")
 
-	_, err = collection.InsertOne(ctx, formData)
+	_, err = collection.InsertOne(ctx, dataParkir)
 	if err != nil {
 		return fmt.Errorf("failed to insert data into MongoDB: %v", err)
 	}
@@ -76,7 +76,7 @@ func saveToMongo(formData Parkkiran) error {
 	return nil
 }
 
-func InsertDataToMongoDB(formData Parkkiran) error {
+func InsertDataToMongoDB(dataParkir Parkiran) error {
     // Establish a connection to MongoDB
     client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
     if err != nil {
@@ -92,12 +92,32 @@ func InsertDataToMongoDB(formData Parkkiran) error {
     collection := client.Database("PakArbi").Collection("codeqr")
 
     // Insert data into MongoDB
-    _, err = collection.InsertOne(context.Background(), formData)
+    _, err = collection.InsertOne(context.Background(), dataParkir)
     if err != nil {
         return fmt.Errorf("failed to insert data to MongoDB: %v", err)
     }
 
     return nil
+}
+
+func SequenceAutoIncrement(mongoconn *mongo.Database, sequenceName string) int {
+	filter := bson.M{"_id": sequenceName}
+	update := bson.M{"$inc": bson.M{"seq": 1}}
+
+	var result struct {
+		Seq int `bson:"seq"`
+	}
+
+	after := options.After
+	opt := &options.FindOneAndUpdateOptions{
+		ReturnDocument: &after,
+	}
+	collection := mongoconn.Collection("counters")
+	err := collection.FindOneAndUpdate(context.TODO(), filter, update, opt).Decode(&result)
+	if err != nil {
+		// handle error
+	}
+	return result.Seq
 }
 
 func establishMongoDBConnection() (*mongo.Client, error) {
@@ -110,12 +130,12 @@ func establishMongoDBConnection() (*mongo.Client, error) {
     return client, nil
 }
 
-func insertDataToMongoDB(client *mongo.Client, formData Parkkiran) error {
+func insertDataToMongoDB(client *mongo.Client, dataParkir Parkiran) error {
     // Access your database and collection
     collection := client.Database("PakArbi").Collection("codeqr")
 
     // Insert data into MongoDB
-    _, err := collection.InsertOne(context.Background(), formData)
+    _, err := collection.InsertOne(context.Background(), dataParkir)
     if err != nil {
         return fmt.Errorf("failed to insert data to MongoDB: %v", err)
     }
@@ -124,9 +144,9 @@ func insertDataToMongoDB(client *mongo.Client, formData Parkkiran) error {
 }
 
 //insert
-// func InsertDataToMongoDB(formData Parkkiran) error {
+// func InsertDataToMongoDB(dataParkir Parkiran) error {
 // 	// Convert struct to JSON
-// 	dataJSON, err := json.Marshal(formData)
+// 	dataJSON, err := json.Marshal(dataParkir)
 //     if err != nil {
 //         return fmt.Errorf("failed to marshal JSON: %v", err)
 //     }
@@ -146,7 +166,7 @@ func insertDataToMongoDB(client *mongo.Client, formData Parkkiran) error {
 // 	collection := client.Database("PakArbi").Collection("codeqr")
 
 // 	// Insert data into MongoDB
-// 	_, err = collection.InsertOne(context.Background(), formData)
+// 	_, err = collection.InsertOne(context.Background(), dataParkir)
 // 	if err != nil {
 // 		return fmt.Errorf("failed to insert data to MongoDB: %v", err)
 // 	}

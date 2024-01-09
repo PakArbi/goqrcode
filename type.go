@@ -8,7 +8,7 @@ type Notifikasi struct {
 	Data    Parkiran  	`json:"data"`
 }
 
-type Time struct {
+type Status struct {
 	Message     string `json:"message,omitempty" bson:"message,omitempty"`
 	WaktuMasuk  string `json:"waktumasuk,omitempty" bson:"waktumasuk,omitempty"`
 	WaktuKeluar string `json:"waktukeluar,omitempty" bson:"waktukeluar,omitempty"`
@@ -24,15 +24,17 @@ type Time struct {
 // }
 
 type Parkiran struct {
-	ID             primitive.ObjectID `json:"_id" bson:"_id,omitempty" `
-	ParkiranId     int                `json:"parkiranid" bson:"parkiranid"`
-	Nama           string             `json:"nama" bson:"nama"`
-	NPM            string             `json:"npm" bson:"npm"`
-	Prodi        string             `json:"prodi" bson:"prodi"`
-	NamaKendaraan  string             `json:"namakendaraan" bson:"namakendaraan"`
-	NomorKendaraan string             `bson:"nomorkendaraan,omitempty" json:"nomorkendaraan,omitempty"`
-	JenisKendaraan string             `json:"jeniskendaraan,omitempty" bson:"jeniskendaraan,omitempty"`
+    ID             primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
+    ParkiranId     int                `json:"parkiranid" bson:"parkiranid"`
+    Nama           string             `json:"nama" bson:"nama"`
+    NPM            string             `json:"npm" bson:"npm"`
+    Prodi          string             `json:"prodi" bson:"prodi"`
+    NamaKendaraan  string             `json:"namakendaraan" bson:"namakendaraan"`
+    NomorKendaraan string             `bson:"nomorkendaraan,omitempty" json:"nomorkendaraan,omitempty"`
+    JenisKendaraan string             `json:"jeniskendaraan,omitempty" bson:"jeniskendaraan,omitempty"`
+    Status         Status             `json:"status,omitempty" bson:"status,omitempty"`
 }
+
 
 type QRScan struct {
 	QR      string `json:"qr"`
