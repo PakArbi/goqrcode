@@ -47,59 +47,71 @@ func SendEmail(to, subject, body string) error {
     return nil
 }
 
-func GenerateHandler(MONGOCONNSTRINGENV, dbname, collectionname string, w http.ResponseWriter, r *http.Request) string {
-    if r.Method == "POST" {
-        var parkiranData Parkiran
-        err := json.NewDecoder(r.Body).Decode(&parkiranData)
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusBadRequest)
-            return
-        }
+func GCFGenerate(MONGOCONNSTRINGENV, dbname, collectionname string, w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		var parkiranData Parkiran
+		err := json.NewDecoder(r.Body).Decode(&parkiranData)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
-        // Generate QR Code
-        qrData := prepareQRData(parkiranData)
-        qrCode, err := GenerateQRCode(qrData)
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
+		// Timestamp untuk waktu masuk
+		currentTime := time.Now()
+		parkiranData.Time = Time{
+			Message:    "Status melakukan proses parkir di area kampus",
+			WaktuMasuk: currentTime.Format(time.RFC3339),
+		}
 
-        // Simpan hasil scan QR ke MongoDB
-        qrScanData := QRScan{
-            QR:      qrCode,
-            Status:  "scanned",
-            Message: "QR code scanned and stored",
-        }
+		// Generate QR Code
+		qrData := prepareQRData(parkiranData)
+		qrCode, err := GenerateQRCode(qrData)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-        err = SaveQRScanResult(qrScanData)
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
+		// Simpan hasil scan QR ke MongoDB
+		qrScanData := QRScan{
+			QR:      qrCode,
+			Status:  "scanned",
+			Message: "QR code scanned and stored",
+		}
 
-         // Menerima informasi dari alert
-    	alertInfo := getAlertInfo(r) // Misalnya, mendapatkan informasi dari request
+		err = SaveQRScanResult(qrScanData)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-    	// Lakukan sesuatu dengan informasi yang diterima dari alert
-    	err = HandleAlertInfo(alertInfo)
-    	if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    	}
+		// Menerima informasi dari alert
+		alertInfo := getAlertInfo(r) // Misalnya, mendapatkan informasi dari request
 
-        // Kirim respons ke pengguna
-        response := Notifikasi{
-            Status:  http.StatusOK,
-            Message: "Data berhasil diproses",
-            Data:    parkiranData,
-        }
-        w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(response)
-    } else {
-        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-        return
-    }
+		// Lakukan sesuatu dengan informasi yang diterima dari alert
+		err = HandleAlertInfo(alertInfo)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Timestamp untuk waktu keluar
+		waktuKeluar := time.Now()
+		parkiranData.Time.WaktuKeluar = waktuKeluar.Format(time.RFC3339)
+
+		// Kirim respons ke pengguna
+		response := Notifikasi{
+			Status:  http.StatusOK,
+			Message: "Data berhasil diproses",
+			Data:    parkiranData,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 }
+
 
 func GenerateQRCodeWithLogo(DataParkir backparkir.Parkiran) error {
 	// Convert struct to JSON
