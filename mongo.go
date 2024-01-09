@@ -25,6 +25,32 @@ func insertPayload2() {
 	collection = client.Database("Pakarbi").Collection("codeqr")
 }
 
+func SaveQRScanResult(qrData QRScan) error {
+    // Koneksi ke MongoDB
+    client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
+    if err != nil {
+        return err
+    }
+    defer func() {
+        if err = client.Disconnect(context.Background()); err != nil {
+            panic(err)
+        }
+    }()
+
+    // Pilih database dan koleksi
+    database := client.Database("PakArbiQR")
+    collection := database.Collection("QRData")
+
+    // Menyimpan qrData ke dalam MongoDB
+    _, err = collection.InsertOne(context.Background(), qrData)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
+
 func saveToMongo(formData FormData) error {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://faisalTampan:9byL9bOl3rhqbSrO@soren.uwshwr6.mongodb.net/test"))
 	if err != nil {
